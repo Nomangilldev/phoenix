@@ -20,8 +20,15 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class EditCommand extends Command implements ContextAware
 {
-    private string $runtimeDir = '';
-    private Context $context;
+    /**
+     * @var string
+     */
+    private $runtimeDir = '';
+
+    /**
+     * @var Context
+     */
+    private $context;
 
     /**
      * Constructor.
@@ -97,7 +104,7 @@ class EditCommand extends Command implements ContextAware
         $editedContent = $this->editFile($filePath, $shouldRemoveFile);
 
         if ($execute) {
-            $this->getShell()->addInput($editedContent);
+            $this->getApplication()->addInput($editedContent);
         }
 
         return 0;

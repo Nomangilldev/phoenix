@@ -100,6 +100,7 @@ Route::middleware('auth:sanctum')->group(function () {
     
     //Riddles list
     Route::get('/riddleList' , [RiddlesController::class, 'index']);
+    Route::post('/deleteWinningNumber', [WinnigController::class, 'deleteWinningNumber']);
 
 });
 
@@ -116,3 +117,8 @@ Route::post('/requestAccess' , [UserController::class, 'requestUser']);
 //winning mamagement
 
 Route::get('/winingList' , [RiddlesController::class, 'winingList']);
+
+//test time 
+Route::get('/testTime', [OrderController::class, 'testTime']);
+
+

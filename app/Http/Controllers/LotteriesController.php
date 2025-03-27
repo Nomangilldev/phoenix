@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use App\Models\User;
+use Exception;
 
 use App\Models\Lottery; // Adjust the namespace and path based on your actual model location
 
@@ -171,19 +172,22 @@ public function getLotteriesListAll($lotteryId = null)
 
 
         $lotteries = $query->map(function ($lottery) use ($baseUrl) {
-            $days = DB::table('lotteries')->where('lot_id', $lottery->lot_id)->value('lot_weekday');
-            //dd($days);
-            
-            $lottery->lot_weekday = $days ? explode(',', $days) : ['Cada dia'];
-            //  $days = str_replace("'", "", $days);
-            //   $lottery->lot_weekday = json_decode($days); 
-              
-              
-            // Concatenate base URL with img_url
-            $lottery->img_url = $baseUrl . $lottery->img_url;
+    $days = DB::table('lotteries')->where('lot_id', $lottery->lot_id)->value('lot_weekday');
 
-            return $lottery;
-        });
+    // Try decoding as JSON first
+    $decodedDays = json_decode($days, true);
+
+    $lottery->lot_weekday = $decodedDays != null && !empty($decodedDays) ? $decodedDays : ['Cada dia'];
+    if (!is_array($decodedDays)) {
+    $lottery->lot_weekday = [(string) $decodedDays];
+    }
+
+    // Concatenate base URL with img_url
+    $lottery->img_url = $baseUrl . $lottery->img_url;
+
+    return $lottery;
+});
+
 
 
     if ($lotteryId) {
@@ -263,7 +267,7 @@ public function getLotteriesListAllWithTime()
 
     date_default_timezone_set("America/Guatemala");
     $serverTimeWithGuatemala = now()->format('H:i:s');
-    $currentDay = now()->format('l');
+    $currentDay = now()->format('l'); // Current day in English (e.g., "Monday")
 
     $daysArr = [
         'everyday' => 'Cada dia',
@@ -280,47 +284,47 @@ public function getLotteriesListAllWithTime()
 
     // Get lotteries with winning_type 7
     $lotteriesType7 = DB::table('lotteries')
-    ->select(
-        'lot_id',
-        'lot_name AS name',
-        'is_open',
-        'multiply_number',
-        'img_url',
-        'winning_type',
-        'lot_opentime',
-        'lot_closetime',
-        'user_added_id',
-        DB::raw("
-            CASE 
-                WHEN lot_colorcode = '' THEN 'Color(0xff1cff19)'
-                WHEN lot_colorcode IS NULL THEN 'Color(0xffEAF8A3)'
-                ELSE lot_colorcode
-            END AS colorcode
-        ")
-    )
-    ->where('winning_type', 7)
-    ->where(function ($query) use ($dayInSpanish, $serverTimeWithGuatemala) {
-        $query->where('lot_weekday', '!=', $dayInSpanish) // Condition 1: Day does not match
-              ->orWhere(function ($query) use ($dayInSpanish, $serverTimeWithGuatemala) {
-                  $query->where('lot_weekday', '=', $dayInSpanish) // Condition 2: Day matches
-                        ->where(function ($query) use ($serverTimeWithGuatemala) {
-                            $query->where('lot_opentime', '>=', $serverTimeWithGuatemala)
-                                  ->orWhere('lot_closetime', '<=', $serverTimeWithGuatemala); // Time is outside open/close range
-                        });
-              });
-    })
-    ->where('user_added_id', $thisAdminId)
-    ->get();
-
-
-    // Get lotteries with winning_type 1
-        $lotteriesType1 = DB::table('lotteries')
         ->select(
             'lot_id',
             'lot_name AS name',
             'is_open',
             'multiply_number',
-            'img_url',
+            DB::raw('IFNULL(img_url, "/assets/images/logo2.png") AS img_url'),
+            'winning_type',
+            'lot_opentime',
+            'lot_closetime',
+            'user_added_id',
+            DB::raw("
+                CASE 
+                    WHEN lot_colorcode = '' THEN 'Color(0xff1cff19)'
+                    WHEN lot_colorcode IS NULL THEN 'Color(0xffEAF8A3)'
+                    ELSE lot_colorcode
+                END AS colorcode
+            ")
+        )
+        ->where('winning_type', 7)
+        ->where('user_added_id', $thisAdminId)
+        ->where(function ($query) use ($dayInSpanish, $serverTimeWithGuatemala) {
+            $query->whereRaw("JSON_CONTAINS(lot_weekday, ?) = 0", ['"' . $dayInSpanish . '"'])
+            ->orWhere(function ($query) use ($dayInSpanish, $serverTimeWithGuatemala) {
+                $query->whereRaw("JSON_CONTAINS(lot_weekday, ?)", ['"' . $dayInSpanish . '"'])
+                ->where(function ($query) use ($serverTimeWithGuatemala) {
+            $query->where('lot_opentime', '>=', $serverTimeWithGuatemala)
+                ->orWhere('lot_closetime', '<=', $serverTimeWithGuatemala);
+                });
+      });
+
+        })
+        ->get();
+
+    // Get lotteries with winning_type 1
+    $lotteriesType1 = DB::table('lotteries')
+        ->select(
+            'lot_id',
+            'lot_name AS name',
+            'is_open',
+            'multiply_number',
+            DB::raw('IFNULL(img_url, "/assets/images/logo2.png") AS img_url'),
             'winning_type',
             'lot_opentime',
             'lot_closetime',
@@ -328,23 +332,19 @@ public function getLotteriesListAllWithTime()
             DB::raw("CASE WHEN lot_colorcode = '' THEN 'Color(0xff1cff19)' WHEN lot_colorcode IS NULL THEN 'Color(0xffEAF8A3)' ELSE lot_colorcode END AS colorcode")
         )
         ->where('winning_type', 1)
+        ->where('user_added_id', $thisAdminId)
         ->where(function ($query) use ($dayInSpanish, $serverTimeWithGuatemala) {
             $query->where(function ($subQuery) use ($dayInSpanish) {
-                // Include lotteries where lot_weekday is "Cada dia" or matches the current day
-                $subQuery->where('lot_weekday', 'Cada dia')
-                         ->orWhere('lot_weekday', $dayInSpanish);
+                $subQuery->whereRaw("JSON_CONTAINS(lot_weekday, '\"Cada dia\"')") // Matches "everyday"
+                         ->orWhereRaw("JSON_CONTAINS(lot_weekday, ?)", ['"' . $dayInSpanish . '"']); // Matches current day
             })
-            ->where(function ($subQuery) use ($serverTimeWithGuatemala) {
-                // Ensure the current time is between lot_opentime and lot_closetime
-                $subQuery->where('lot_opentime', '<', $serverTimeWithGuatemala)
-                         ->where('lot_closetime', '>', $serverTimeWithGuatemala);
-            });
+            ->where('lot_opentime', '<', $serverTimeWithGuatemala)
+            ->where('lot_closetime', '>', $serverTimeWithGuatemala);
         })
-        ->where('user_added_id', $thisAdminId)
         ->get();
 
     // Combine the results
-    $lotteries = $lotteriesType7->merge($lotteriesType1);
+    $lotteries = $lotteriesType1->merge($lotteriesType7);
 
     if ($lotteries->isNotEmpty()) {
         $lotteries->transform(function ($lottery) {
@@ -353,14 +353,12 @@ public function getLotteriesListAllWithTime()
             return $lottery;
         });
 
+        $lotteries = collect($lotteries)->map(function ($item) {
+            return collect($item)->map(function ($value, $key) {
+                return (string) $value; // Convert value to string
+            })->toArray();
+        });
 
-
-$lotteries = collect($lotteries)->map(function ($item) {
-    // Convert object to array and then map each value to a string
-    return collect($item)->map(function ($value, $key) {
-        return (string) $value; // Convert value to string
-    })->toArray();
-}); 
         return response()->json([
             'timenow' => now()->format('H:i:s'),
             'success' => true,

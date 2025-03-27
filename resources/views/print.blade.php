@@ -87,7 +87,7 @@
                 </tr>
                 <tr>
                     <th width='70%'>Vendedor:</th>
-                    <td>{{ isset($data['lotteryData']['vendor_name']) ? $data['lotteryData']['vendor_name'] : 'N/A' }}</td>
+                    <td>{{ isset($data['lotteryData']['seller']) ? $data['lotteryData']['seller']['username'] : 'N/A' }}</td>
                 </tr>
                 <tr>
                     <th width='70%'>Cliente:</th>
@@ -144,13 +144,13 @@
             @php
                 $total = 0;
                 // Initialize paid status to "Not Paid"
-                $paidNotPaid = 'Not Paid';
+                $paidNotPaid = 'No pagado';
             @endphp
             @foreach ($items as $item)
             @php
                 // Check if transaction_paid_id is greater than 0 for any item
                 if ($item['transaction_paid_id'] > 0 && $item['winning_amount'] > 0) {
-                    $paidNotPaid = 'Paid';
+                    $paidNotPaid = 'Pagado';
                 }   
             @endphp
                 <tr style="background-color: {{ $item['winning_amount'] > 0 ? '#ffcccc' : 'transparent' }};">
@@ -165,11 +165,11 @@
             @endforeach
             @php
                 $totalQuator = $total * 0.05;
-                $winNotWin = $totalWinningAmount > 0 ? 'Winner' : 'Not Winner';
+                $winNotWin = $totalWinningAmount > 0 ? 'Ganador' : 'No ganador';
             @endphp
             <tr>
                 <th>Total</th>
-                <th> F:{{$total}} | $:{{$totalQuator}}</th>
+                <th> P:{{$total}} | $:{{$totalQuator}}</th>
             </tr>
         </table>
         @php
@@ -180,11 +180,11 @@
         
         <table class="table1">
             <tr>
-                <th style="width:50%">Grand Total</th>
-                <th style="width:50%"> F:{{$grandTotalFrac}} | $:{{$grandTotalQuat}}</th>
+                <th style="width:50%">Gran total</th>
+                <th style="width:50%"> P:{{$grandTotalFrac}} | P:{{$grandTotalQuat}}</th>
             </tr>
             <tr>
-                <th style="width:50%">Win/Paid Status</th>
+                <th style="width:50%">Estado de pago/ganancia</th>
                 <th style="width:50%">{{ $winNotWin }} | {{ $paidNotPaid }}</th>
             </tr>
         </table>
