@@ -17,6 +17,10 @@ class LotteriesController extends Controller
         $uniVeriable = $lotteryId;
 
         //dd($request);
+        
+        try{
+            
+        
         if ($request->filled(['lot_name', 'mul_num' , 'is_open'])) {
             $user = auth()->user();
 
@@ -27,17 +31,17 @@ class LotteriesController extends Controller
              $weekdays = $request->input('weekdays'); // ["Cada dia", "Lunes"]
 
     // Check if $weekdays is an array
-    if (is_array($weekdays)) {
+//     if (is_array($weekdays)) {
     
-        // Convert the array to a comma-separated string
-        $weekdaysString = implode(', ', $weekdays); // "Cada dia, Lunes"
-    }else{
-        $weekdaysString = str_replace(["[", "]", "'"], "", $weekdays); 
-// Result: "Cada dia, Lunes, Martes"
+//         // Convert the array to a comma-separated string
+//         $weekdaysString = implode(', ', $weekdays); // "Cada dia, Lunes"
+//     }else{
+//         $weekdaysString = str_replace(["[", "]", "'"], "", $weekdays); 
+// // Result: "Cada dia, Lunes, Martes"
 
-        //$weekdaysString = json_decode(json_encode($request->input('weekdays'))); // ["Cada dia", "Lunes"]
+//         //$weekdaysString = json_decode(json_encode($request->input('weekdays'))); // ["Cada dia", "Lunes"]
         
-    }
+//     }
             
 
 
@@ -52,9 +56,11 @@ class LotteriesController extends Controller
                 'lot_opentime'  => $request->input('fromtime'),
                 'lot_closetime' => $request->input('totime'),
                 // 'lot_colorcode' => $request->input('colorcode'),
-                'lot_weekday'   => $weekdaysString,
+                'lot_weekday'   => json_encode($weekdays),
                 'is_open'   => $request->input('is_open'),
             ];
+            
+            // dd($request);
             
             if ($request->filled('colorcode')) {
                 $lotData['lot_colorcode'] = $request->input('colorcode');
@@ -103,6 +109,9 @@ class LotteriesController extends Controller
         }
 
         return response()->json($response);
+        }catch(\Exception $e){
+            return response()->json(['success' => false, 'message' => $e->getMessage()]);
+        }
     }
 
 

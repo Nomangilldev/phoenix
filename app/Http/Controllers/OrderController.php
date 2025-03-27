@@ -8,6 +8,7 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Transaction;
+use App\Models\User;
 use Carbon\Carbon;
 use DateTime;
 use DateTimeZone;
@@ -201,11 +202,42 @@ public function deleteOrder(Request $request, $id)
         if ($order) {
             Transaction::where('transaction_id', $order->transaction_id)->delete();
             $order->delete();
-            DB::table('notifications')->insert([
-                'added_user_id' => $user->user_id,
-                'user_id' => $user->added_user_id, // Assuming the order has a user_id field
-                'notification_message' => $user->username . ' ' . 'just canceled an Order.',
-            ]);
+            // Insert a notification record for the user who added the order
+            // DB::table('notifications')->insert([
+            //     'added_user_id' => $user->user_id,
+            //     'user_id' => $user->added_user_id, // Assuming the order has a user_id field
+            //     'notification_message' => $user->username . ' ' . 'just canceled an Order.',
+            // ]);
+
+            // Check if there is a manager
+            $manager = User::where('user_id', $user->added_user_id)->first();
+            if ($manager) {
+                DB::table('notifications')->insert([
+                    'added_user_id' => $user->user_id,
+                    'user_id' => $manager->user_id,
+                    'notification_message' => $user->username . ' ' . 'just canceled an Order.',
+                ]);
+
+                // Check if there is an admin of the manager
+                $admin = User::where('user_id', $manager->added_user_id)->first();
+                if ($admin) {
+                    DB::table('notifications')->insert([
+                        'added_user_id' => $user->user_id,
+                        'user_id' => $admin->user_id,
+                        'notification_message' => $user->username . ' ' . 'just canceled an Order.',
+                    ]);
+
+                    // Check if there is a superadmin of the admin
+                    $superAdmin = User::where('user_id', $admin->added_user_id)->first();
+                    if ($superAdmin) {
+                        DB::table('notifications')->insert([
+                            'added_user_id' => $user->user_id,
+                            'user_id' => $superAdmin->user_id,
+                            'notification_message' => $user->username . ' ' . 'just canceled an Order.',
+                        ]);
+                    }
+                }
+            }
         }
     } catch (\Exception $e) {
         // If an error occurs during deletion, return an error response

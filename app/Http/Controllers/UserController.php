@@ -474,10 +474,6 @@ private function buildUserTree($users)
                 $parent['children'] = [];
             }
             $parent['children'][] = &$userHash[$user['user_id']];
-            // Initialize 'children' array for manager if not already set
-            if (!isset($userHash[$user['user_id']]['children'])) {
-                $userHash[$user['user_id']]['children'] = [];
-            }
         } elseif ($user['user_role'] === 'seller' && isset($userHash[$user['added_user_id']])) {
             // Seller is a child of manager
             $parent = &$userHash[$user['added_user_id']];
@@ -485,6 +481,11 @@ private function buildUserTree($users)
                 $parent['children'] = [];
             }
             $parent['children'][] = &$userHash[$user['user_id']];
+        }
+
+        // Ensure every user has a 'children' array
+        if (!isset($userHash[$user['user_id']]['children'])) {
+            $userHash[$user['user_id']]['children'] = [];
         }
     }
 
