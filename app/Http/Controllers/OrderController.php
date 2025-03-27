@@ -8,6 +8,7 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Transaction;
+use App\Models\User;
 use Carbon\Carbon;
 use DateTime;
 use DateTimeZone;
@@ -75,24 +76,63 @@ $serverTimeWithGuatemala = new DateTime(now()->format('H:i:s'));
 
     $data = $request->input('data');
     
-    foreach($data as $item){
-        // Fetch lottery information from the database
-        $lottery = DB::table('lotteries')
-    ->where('lot_id', $item['loteryId'])
-    ->first();
-    
-    // Open and close times from the lottery object (in 'H:i:s' format)
+    //setlocale(LC_TIME, 'es_ES.UTF-8', 'Spanish_Spain.1252'); // Set locale to Spanish
+
+    foreach ($data as $item) {
+    // Fetch lottery information from the database
+    $lottery = DB::table('lotteries')
+        ->where('lot_id', $item['loteryId'])
+        ->first();
+
+    // Convert open and close times
     $lotteryOpenTime = DateTime::createFromFormat('H:i:s', $lottery->lot_opentime);
     $lotteryCloseTime = DateTime::createFromFormat('H:i:s', $lottery->lot_closetime);
 
-        
-        if ($serverTimeWithGuatemala < $lotteryOpenTime || $serverTimeWithGuatemala > $lotteryCloseTime) {
-            return response()->json([
-                'success' => false,
-                'msg' => $lottery->lot_name . ' Lottery is closed.',
-            ], 400);
+    // Convert server time to DateTime for comparison
+    // $serverTime = DateTime::createFromFormat('H:i:s', $serverTimeWithGuatemala);
+
+    // Get current day name in Spanish (lowercase)
+    $currentWeekday = strtolower(strftime('%A'));
+
+    // Decode lot_weekday (assuming it's JSON)
+    $lotteryDays = json_decode($lottery->lot_weekday, true);
+    if (!is_array($lotteryDays)) {
+        $lotteryDays = [$lottery->lot_weekday]; // Convert to array if it's a single value
+    }
+
+    // Check if current day matches any of the lottery days
+    $isActiveDay = false;
+    foreach ($lotteryDays as $day) {
+        $day = strtolower($day);
+        if ($day === 'cada dia' || $day === $currentWeekday) {
+            $isActiveDay = true;
+            break;
         }
     }
+
+    // Check conditions based on winning_type
+    if ($lottery->winning_type == 1) {
+        // Daily opening and closing check with day restriction
+        if ($isActiveDay) {
+            if ($serverTimeWithGuatemala < $lotteryOpenTime && $serverTimeWithGuatemala > $lotteryCloseTime) {
+                return response()->json([
+                    'success' => false,
+                    'msg' => $lottery->lot_name . ' Lottery is closed for today.',
+                ], 400);
+            }
+        }
+    } elseif ($lottery->winning_type == 7) {
+        // Weekly-based restriction with day check
+        if ($isActiveDay) {
+            if ($serverTimeWithGuatemala > $lotteryOpenTime && $serverTimeWithGuatemala < $lotteryCloseTime) {
+                return response()->json([
+                    'success' => false,
+                    'msg' => $lottery->lot_name . ' Lottery is closed for today.',
+                ], 400);
+            }
+        }
+    }
+}
 
     if (auth()->check()) {
         $user = auth()->user();
@@ -105,6 +145,7 @@ $serverTimeWithGuatemala = new DateTime(now()->format('H:i:s'));
                 'client_name' => $request->input('name'),
                 'client_contact' => $request->input('number'),
                 'user_id' => $userId,
+                'adddatetime' => 'testc',
                 'sub_total' => 0,
             ]);
 
@@ -201,11 +242,42 @@ public function deleteOrder(Request $request, $id)
         if ($order) {
             Transaction::where('transaction_id', $order->transaction_id)->delete();
             $order->delete();
-            DB::table('notifications')->insert([
-                'added_user_id' => $user->user_id,
-                'user_id' => $user->added_user_id, // Assuming the order has a user_id field
-                'notification_message' => $user->username . ' ' . 'just canceled an Order.',
-            ]);
+            // Insert a notification record for the user who added the order
+            // DB::table('notifications')->insert([
+            //     'added_user_id' => $user->user_id,
+            //     'user_id' => $user->added_user_id, // Assuming the order has a user_id field
+            //     'notification_message' => $user->username . ' ' . 'just canceled an Order.',
+            // ]);
+
+            // Check if there is a manager
+            $manager = User::where('user_id', $user->added_user_id)->first();
+            if ($manager) {
+                DB::table('notifications')->insert([
+                    'added_user_id' => $user->user_id,
+                    'user_id' => $manager->user_id,
+                    'notification_message' => $user->username . ' ' . 'just canceled an Order.',
+                ]);
+
+                // Check if there is an admin of the manager
+                $admin = User::where('user_id', $manager->added_user_id)->first();
+                if ($admin) {
+                    DB::table('notifications')->insert([
+                        'added_user_id' => $user->user_id,
+                        'user_id' => $admin->user_id,
+                        'notification_message' => $user->username . ' ' . 'just canceled an Order.',
+                    ]);
+
+                    // Check if there is a superadmin of the admin
+                    $superAdmin = User::where('user_id', $admin->added_user_id)->first();
+                    if ($superAdmin) {
+                        DB::table('notifications')->insert([
+                            'added_user_id' => $user->user_id,
+                            'user_id' => $superAdmin->user_id,
+                            'notification_message' => $user->username . ' ' . 'just canceled an Order.',
+                        ]);
+                    }
+                }
+            }
         }
     } catch (\Exception $e) {
         // If an error occurs during deletion, return an error response
@@ -276,6 +348,8 @@ $orders = Order::select(
 public function printOrder(Request $request, $id)
 {
     // Fetch the order details
+    date_default_timezone_set("America/Guatemala");
+
     $currentOrderId = $id;
     $orderDetails = $this->getOrderDetails($currentOrderId);
 
@@ -327,7 +401,9 @@ function getOrderDetails($orderId) {
     $orderDetails = Order::select('order_id', 'user_id', 'order_date', 'client_name', 'client_contact', 'sub_total', 'grand_total','adddatetime')
         ->with(['orderItems' => function ($query) {
             $query->select('order_item_id', 'order_id', 'product_id', 'winning_amount', 'transaction_paid_id', 'product_name', 'lot_number', 'lot_frac', 'lot_amount');
-        }])
+        },
+        'seller'
+        ])
         ->where('order_id', $orderId)
         ->first();
 
@@ -351,5 +427,13 @@ function getOrderDetails($orderId) {
     return $orderDetails;
 }
 
+public function testTime(Request $request){
+   
+//echo "Server Timezone: " . date_default_timezone_get() . "<br>";
+// date_default_timezone_set("America/Guatemala");
+echo "Current Time: " . date("Y-m-d H:i:s");
+
+
+}
 
 }

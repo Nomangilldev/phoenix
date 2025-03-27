@@ -298,6 +298,12 @@ $lastCutEntry = DB::table('cut_history')
             ],
             [
                 'img' => asset('assets/images/cash.png'),
+                'name' => 'Used Credits',
+                'spanishName' => 'Créditos usados',
+                'amount' => number_format($addedUsers, 0),
+            ],
+            [
+                'img' => asset('assets/images/cash.png'),
                 'name' => 'Available Credits',
                 'spanishName' => 'Créditos disponibles',
                 'amount' => number_format($availableCredits, 2),
@@ -455,6 +461,13 @@ if($totalCollected > 0 ){
 			            'name' => 'Total Credits',
 					 	'spanishName' => 'Créditos totales', // Total amount(cash in hand )
 			            'amount' => number_format($totalUserCredits,2),
+            ];
+            
+            $data[] = [
+                        'img' => asset('assets/images/cash.png'),
+			            'name' => 'Used Credits',
+					 	'spanishName' => 'Créditos usados', // Total amount(cash in hand )
+			            'amount' => number_format($recentOrdersTotal,2),
             ];
             
             $data[] = [
@@ -647,6 +660,12 @@ public function managerDashboard($user)
                 'name' => 'Total Credits',
                 'spanishName' => 'Créditos totales',
                 'amount' => number_format($totaUserCredit, 0),
+            ],
+            [
+                'img' => asset('assets/images/cash.png'),
+                'name' => 'Used Credits',
+                'spanishName' => 'Créditos usados',
+                'amount' => number_format($givenCredits, 0),
             ],
             [
                 'img' => asset('assets/images/cash.png'),

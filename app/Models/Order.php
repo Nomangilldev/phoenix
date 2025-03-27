@@ -15,6 +15,11 @@ class Order extends Model
     {
         return $this->hasMany(OrderItem::class, 'order_id', 'order_id');
     }
+    
+    public function seller()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 
     protected $fillable = [
         'order_date', 'client_name', 'client_contact', 'sub_total', 'grand_total', 'note', 'transaction_id', 'user_id',

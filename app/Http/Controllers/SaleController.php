@@ -127,9 +127,9 @@ return response()->json($re);
     ->where('order_date', $today)
     ->sum('grand_total');
     
+    $totalLimitCredit = $orderTotalSum + $quatSum;
     $orderTotalFrac = $orderTotalSum * 20;
 
-    $totalLimitCredit = $orderTotalSum + $quatSum;
     $totalLimitCreditFrac = $orderTotalFrac + $fracSum;
     if ($totalLimitCredit > $user->user_amount || $totalLimitCreditFrac > $user->user_frac) {
         return response()->json(['success' => false, 'msg' => 'The amount exceeds your credit limit']);

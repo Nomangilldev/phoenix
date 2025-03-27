@@ -332,6 +332,38 @@ protected function adminWinningList($user)
 
 }
 
+public function deleteWinningNumber(Request $request)
+    {
+        DB::beginTransaction();
+        try{
+            
+            $user = auth()->user();
+            $winId = $request->input('win_id');
+            
+            $winningNumber = DB::table('winning_numbers')
+                ->where('win_id', $winId)
+                ->first();
+            
+            $orderItems = DB::table('order_item')
+                ->where('product_id', $winningNumber->lot_id)
+                ->whereDate('adddatetime', $winningNumber->add_date)
+                ->update([
+                    'lottery_gone' => 0,
+                    'winning_amount' => 0
+                ]);
+                
+            DB::table('winning_numbers')
+                ->where('win_id', $winId)
+                ->delete();
+                
+            DB::commit();
+            return response()->json(['success' => true, 'msg' => 'Winning number deleted'], 200);
+            
+        }catch(\Exception $e){
+            DB::rollback();
+            return response()->json(['success' => false, 'msg' => $e->getMessage()], 400);
+        }
+    }
 
 private function getAdminUserId($user)
     {

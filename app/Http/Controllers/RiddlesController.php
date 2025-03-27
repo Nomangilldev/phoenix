@@ -18,16 +18,16 @@ class RiddlesController extends Controller
         $user = Auth()->user();
         $baseUrl = url('/');
 if($user->user_role == 'superadmin'){
-$riddles = Riddles::all();
+$riddles = Riddles::orderBy('rid_id', 'desc')->get();
 }elseif($user->user_role == 'admin'){
-    $riddles = Riddles::where('user_id', $user->user_id)->get();
+    $riddles = Riddles::where('user_id', $user->user_id)->orderBy('rid_id', 'desc')->get();
 }else{
     $addedUser = User::where('user_id', $user->added_user_id)->first();
     if($user->user_role == 'manager'){
-    $riddles = Riddles::where('user_id', $addedUser->user_id)->get();
+    $riddles = Riddles::where('user_id', $addedUser->user_id)->orderBy('rid_id', 'desc')->get();
     }elseif($user->user_role == 'seller'){
     $managerAddedUser = User::where('user_id', $addedUser->added_user_id)->first();
-    $riddles = Riddles::where('user_id', $managerAddedUser->user_id)->get();
+    $riddles = Riddles::where('user_id', $managerAddedUser->user_id)->orderBy('rid_id', 'desc')->get();
     }
 }
 
