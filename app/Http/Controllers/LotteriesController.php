@@ -319,29 +319,30 @@ public function getLotteriesListAllWithTime()
 
     // Get lotteries with winning_type 1
     $lotteriesType1 = DB::table('lotteries')
-        ->select(
-            'lot_id',
-            'lot_name AS name',
-            'is_open',
-            'multiply_number',
-            DB::raw('IFNULL(img_url, "/assets/images/logo2.png") AS img_url'),
-            'winning_type',
-            'lot_opentime',
-            'lot_closetime',
-            'user_added_id',
-            DB::raw("CASE WHEN lot_colorcode = '' THEN 'Color(0xff1cff19)' WHEN lot_colorcode IS NULL THEN 'Color(0xffEAF8A3)' ELSE lot_colorcode END AS colorcode")
-        )
-        ->where('winning_type', 1)
-        ->where('user_added_id', $thisAdminId)
-        ->where(function ($query) use ($dayInSpanish, $serverTimeWithGuatemala) {
-            $query->where(function ($subQuery) use ($dayInSpanish) {
-                $subQuery->whereRaw("JSON_CONTAINS(lot_weekday, ?)", ['"Cada dia"']) // Matches "everyday"
-                ->orWhereRaw("JSON_CONTAINS(lot_weekday, ?)", ['"' . $dayInSpanish . '"']); // Matches current day
-            })
-            ->where('lot_opentime', '<', $serverTimeWithGuatemala)
-            ->where('lot_closetime', '>', $serverTimeWithGuatemala);
+    ->select(
+        'lot_id',
+        'lot_name AS name',
+        'is_open',
+        'multiply_number',
+        DB::raw('IFNULL(img_url, "/assets/images/logo2.png") AS img_url'),
+        'winning_type',
+        'lot_opentime',
+        'lot_closetime',
+        'user_added_id',
+        DB::raw("CASE WHEN lot_colorcode = '' THEN 'Color(0xff1cff19)' WHEN lot_colorcode IS NULL THEN 'Color(0xffEAF8A3)' ELSE lot_colorcode END AS colorcode")
+    )
+    ->where('winning_type', 1)
+    ->where('user_added_id', $thisAdminId)
+    ->where(function ($query) use ($dayInSpanish, $serverTimeWithGuatemala) {
+        $query->where(function ($subQuery) use ($dayInSpanish) {
+            $subQuery->whereRaw("JSON_CONTAINS(lot_weekday, ?)", [json_encode('Cada dia')])
+                     ->orWhereRaw("JSON_CONTAINS(lot_weekday, ?)", [json_encode($dayInSpanish)]);
         })
-        ->get();
+        ->where('lot_opentime', '<', $serverTimeWithGuatemala)
+        ->where('lot_closetime', '>', $serverTimeWithGuatemala);
+    })
+    ->get();
+
 
     // Combine the results
     $lotteries = $lotteriesType1->merge($lotteriesType7);
