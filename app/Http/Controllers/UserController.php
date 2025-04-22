@@ -15,6 +15,17 @@ use App\Mail\ForgotPasswordMail;
 class UserController extends Controller
 {
     //
+    public function getManagers(){
+        try{
+            $managers = User::select('user_id', 'username')->where('user_role', 'manager')->where('status', 1)->get();
+            
+            return response()->json(['success' => true, 'data' => $managers]);
+            
+        }catch(\Exception $e){
+            return response()->json(['success' => false, 'message' => $e->getMessage()]);
+        }
+    }
+    
     public function getNotifications(){
         try{
             
@@ -174,6 +185,8 @@ class UserController extends Controller
         if ($request->filled(['email', 'password','user_role'])) {
 
             $user = auth()->user();
+            
+            DB::beginTransaction(); // Start the transaction
 
             try {
                 $userData = [
@@ -183,7 +196,7 @@ class UserController extends Controller
                     'phone'         => $request->input('phone'),
                     'user_role'     => strtolower($request->input('user_role')),
                     'commission'    => $request->input('commission'),
-                    'added_user_id' => $user->user_id,
+                    'added_user_id' => $request->filled('assign_to') ? $request->input('assign_to') : $user->user_id,
                     'address'       => $request->input('address'),
                     'user_amount'   => $request->input('user_amount'),
                     'user_frac'     => $request->input('user_frac'),
@@ -210,6 +223,7 @@ class UserController extends Controller
                     }elseif ($availableUserAmount > 0 && $availableUserFrac > 0) {
                         DB::table('users')->where('user_id', $user_id)->update($userData);
                     } else {
+                        DB::rollBack(); // Something went wrong
                         return response()->json([ 'success' => false, 'msg' => 'Insufficient credit'], 400);
                     }
                 }else{
@@ -228,15 +242,30 @@ class UserController extends Controller
                     }elseif ($availableUserAmount >= 0 && $availableUserFrac >= 0) {
                     DB::table('users')->insert($userData);
                 } else {
+                    DB::rollBack(); // Something went wrong
                     return response()->json([ 'success' => false, 'msg' => 'Insufficient credit'], 400);
                 }
             }
+            
+            if ($request->filled('assign_to') && empty($user_id)) {
+                DB::table('notifications')->insert([
+                    'user_id'       => $request->input('assign_to'),
+                    'added_user_id' => $user->user_id,
+                    'notification_message'       => 'A new user named '. $request->input('username') . ' is added.',
+                ]);
+            }
+            
+            DB::commit(); // All good
+            
                 $response = [
                     'success' => true,
                     'msg'       => ($user_id !== null) ? 'User Updated Successfully' : 'User Added Successfully',
 
                 ];
             } catch (\Exception $e) {
+                
+                DB::rollBack(); // Something went wrong
+                
                 $response = [
                     'success' => false,
                     'msg'       => $e->getMessage(),
@@ -245,6 +274,7 @@ class UserController extends Controller
 
             return response()->json($response);
         } else {
+            DB::rollBack(); // Something went wrong
             return response()->json([
                 'success' => false,
                 'msg'       => 'Invalid request parameters',
