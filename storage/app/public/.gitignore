@@ -1,2 +1,10 @@
 *
 !.gitignore
+!/images
+!/images/**
+!/cnic_images
+!/cnic_images/**
+!/riddle_images
+!/riddle_images/**
+!/user_images
+!/user_images/**
