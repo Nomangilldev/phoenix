@@ -304,7 +304,7 @@ public function getLotteriesListAllWithTime()
         )
         ->where('winning_type', 7)
         ->where('user_added_id', $thisAdminId)
-        ->where('is_open', 1)
+        // ->where('is_open', 1)
         ->where(function ($query) use ($dayInSpanish, $serverTimeWithGuatemala) {
             $query->whereRaw("JSON_CONTAINS(lot_weekday, ?) = 0", ['"' . $dayInSpanish . '"'])
             ->orWhere(function ($query) use ($dayInSpanish, $serverTimeWithGuatemala) {
@@ -334,7 +334,7 @@ public function getLotteriesListAllWithTime()
         )
         ->where('winning_type', 1)
         ->where('user_added_id', $thisAdminId)
-        ->where('is_open', 1)
+        // ->where('is_open', 1)
         ->where(function ($query) use ($dayInSpanish, $serverTimeWithGuatemala) {
             $query->where(function ($subQuery) use ($dayInSpanish) {
                 $subQuery->whereRaw("JSON_CONTAINS(lot_weekday, '\"Cada dia\"')") // Matches "everyday"
