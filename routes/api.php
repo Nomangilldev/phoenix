@@ -47,7 +47,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/lotteryList/{lot_id?}', [LotteriesController::class, 'getLotteriesListAll']);
     //add seller or other users
     Route::post('/addUsers/{user_id?}', [UserController::class, 'addusers']);
-    Route::post('/getManagers', [UserController::class, 'getManagers']);
+    Route::get('/getManagers', [UserController::class, 'getManagers']);
     //edit user only status or commission
     Route::post('/edituser/{user_id}', [UserController::class, 'edituser']);
 
