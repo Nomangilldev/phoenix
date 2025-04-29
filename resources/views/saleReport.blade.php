@@ -72,8 +72,8 @@
                 <table class="table table-bordered table-hover">
                     <tr>
                         @php
-                        $totalSoldInFraction = $data['totalSold'] * 4;
-                        $winningTotalSoldInFraction = $data['winningNumbersTotal'] * 4;
+                        $totalSoldInFraction = $data['totalSold'] * 20;
+                        $winningTotalSoldInFraction = $data['winningNumbersTotal'] * 20;
                         @endphp
                         <th>Total Sold</th>
                         <td>{{ $data['totalSold'] }}</td>
