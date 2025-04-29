@@ -308,10 +308,9 @@ public function getLotteriesListAllWithTime()
         ->where(function ($query) use ($dayInSpanish, $serverTimeWithGuatemala) {
             $query->whereRaw("JSON_CONTAINS(lot_weekday, ?) = 0", ['"' . $dayInSpanish . '"'])
             ->orWhere(function ($query) use ($dayInSpanish, $serverTimeWithGuatemala) {
-                $query->whereRaw("JSON_CONTAINS(lot_weekday, ?)", ['"' . $dayInSpanish . '"'])
-                ->where(function ($query) use ($serverTimeWithGuatemala) {
-            $query->where('lot_opentime', '>=', $serverTimeWithGuatemala)
-                ->orWhere('lot_closetime', '<=', $serverTimeWithGuatemala);
+                $query->where(function ($query) use ($serverTimeWithGuatemala) {
+            $query->where('lot_opentime', '>', $serverTimeWithGuatemala)
+                ->orWhere('lot_closetime', '<', $serverTimeWithGuatemala);
                 });
       });
 
