@@ -99,7 +99,7 @@
                 </tr>
             </table>
             <div class="logo">
-                <img src="{{asset('assets/images/logo.svg')}}" alt="image">
+                <img src="{{asset('assets/images/logo2.png')}}" alt="image">
             </div>
         </div>
                 @php
