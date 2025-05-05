@@ -355,7 +355,7 @@ public function printOrder(Request $request, $id)
 
     // Generate the QR code URL
     $url = route('printOrder', ['id' => $id]); // Replace 'printOrder' with the route name if it has a name
-    $qrCode = QrCode::size(200)->generate($url);
+    $qrCode = QrCode::size(450)->generate($url);
 
     // Prepare response data
     $response = [
