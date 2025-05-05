@@ -11,7 +11,7 @@
         }
         body {
             font-family: sans-serif;
-            font-size: 16px;
+            font-size: 30px;
         }
         .container {
             width: 90%;
@@ -24,7 +24,7 @@
             margin-bottom: 20px;
         }
         .header-info {
-            font-size: 14px;
+            font-size: 22px;
         }
         .header-info th {
             text-align: left;
