@@ -24,7 +24,7 @@
             margin-bottom: 20px;
         }
         .header-info {
-            font-size: 26px;
+            font-size: 30px;
         }
         .header-info th {
             text-align: left;
@@ -34,7 +34,7 @@
         }
         .table-title {
             text-align: left;
-            font-size: 18px;
+            /* font-size: 18px; */
             font-weight: bold;
             margin-top: 15px;
         }
@@ -148,7 +148,7 @@
             @endphp
             <tr>
                 <th>Total</th>
-                <th> P:{{$total}} | $:{{$totalQuator}}</th>
+                <th> P:{{ number_format($total, 2) }} | Q:{{ number_format($totalQuator, 2) }}</th>
             </tr>
         </table>
         @php
@@ -160,7 +160,7 @@
         <table class="table1">
             <tr>
                 <th style="width:50%">Gran total</th>
-                <th style="width:50%"> P:{{$grandTotalFrac}} | P:{{$grandTotalQuat}}</th>
+                <th style="width:50%"> P:{{ number_format($grandTotalFrac, 2) }} | P:{{ number_format($grandTotalQuat, 2) }}</th>
             </tr>
             <tr>
                 <th style="width:50%">Estado de pago/ganancia</th>
