@@ -82,7 +82,7 @@ return response()->json([
         ->join('users', 'users.user_id', '=', 'winning_numbers.added_by')
         ->select('winning_numbers.*', 'lotteries.*', 'users.username') // Alias the users table as username
         ->orderBy('win_id', 'DESC')
-        ->limit(20)
+        ->limit(40)
         ->get();
 
 
