@@ -74,12 +74,14 @@ class RiddlesController extends Controller
     public function winingList()
     {
         $baseUrl = url('/');
+        $user = auth()->user();
 
         $result = DB::table('winning_numbers')
             ->join('lotteries', 'lotteries.lot_id', '=', 'winning_numbers.lot_id')
             ->join('users', 'users.user_id', '=', 'winning_numbers.added_by')
             ->select('winning_numbers.*', 'lotteries.*', 'users.username') // Alias the users table as username
             ->orderBy('win_id', 'DESC')
+            ->where("added_by", $user->user_id)
             ->limit(40)
             ->get();
 
