@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 use Illuminate\Http\Request;
 
@@ -12,9 +13,12 @@ class WinnigController extends Controller
         //dd(auth()->user());
         
         if(!empty($request->lot_id) && !empty($request->win_number) ) {
-            $date = date('y-m-d');
+            $dateInput = $request->input('date'); // e.g., "20 May, 2025"
+            $date = \Carbon\Carbon::createFromFormat('d M, Y', $dateInput)->format('Y-m-d');
             $lot  = $request->lot_id;
             $win  = $request->win_number;
+            // $from_date  = $request->from_date;
+            // $to_date  = $request->to_date;
             $user = auth()->user();
             $user = $user->user_id;
 
@@ -59,6 +63,7 @@ class WinnigController extends Controller
                     $getgoneorder = DB::table('order_item')
                         ->where('lottery_gone', '0')
                         ->where('product_id', $lot)
+                        ->where(DB::raw('cast(adddatetime as date)'), $date)
                         ->get();
 
                     foreach($getgoneorder as $goneupdate) {
