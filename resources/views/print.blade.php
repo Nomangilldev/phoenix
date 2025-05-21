@@ -18,30 +18,69 @@
 
         .container {
             width: 90%;
-            margin: 20px auto;
+            margin: 10px auto;
         }
 
         .header {
             display: flex;
             justify-content: space-between;
-            align-items: center;
+            align-items: flex-start;
             margin-bottom: 20px;
+            flex-wrap: wrap;
         }
 
         .header-info {
-            font-size: 30px;
+            font-size: 26px;
+            /* Increased font size */
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .header-info th,
+        .header-info td {
+            padding: 12px 10px;
+            /* Increased padding for better spacing */
+            text-align: left;
+            vertical-align: top;
+            font-weight: normal;
         }
 
         .header-info th {
-            text-align: left;
+            width: 30%;
+            font-weight: normal;
+            color: #333;
+        }
+
+        .header-info td {
+            width: 70%;
+            font-weight: bold;
+            color: #000;
+        }
+
+        @media print {
+            .header-info {
+                font-size: 27px;
+            }
+
+            .header-info th,
+            .header-info td {
+                width: 50% !important;
+                /* Force equal width */
+            }
+
+            .header {
+                margin-bottom: 10px;
+            }
         }
 
         .logo img {
             width: 150px;
         }
+
         .logo {
             text-align: center;
         }
+
         .table-title {
             text-align: left;
             /* font-size: 18px; */
@@ -91,6 +130,13 @@
             margin: 20px auto;
             display: block;
         }
+
+        .qr-wrapper svg {
+            width: 100%;
+            height: auto;
+            max-width: 300px;
+            /* Optional max size */
+        }
     </style>
 </head>
 
@@ -103,22 +149,22 @@
             <h1 style="color:darkgoldenrod; font-family:serif; font:bold">Fenix F</h1>
         </div>
         <div class="header">
-            <table width="100%" class="header-info">
+            <table width=100% class="header-info">
                 <tr>
-                    <th width='70%'>Fecha y hora:</th>
+                    <th>Fecha y hora:</th>
                     <td>{{ \Carbon\Carbon::parse($data['lotteryData']['adddatetime'])->format('d/m/Y h:i A') }}</td>
                 </tr>
                 <tr>
-                    <th width='70%'>Vendedor:</th>
+                    <th>Vendedor:</th>
                     <td>{{ isset($data['lotteryData']['seller']) ? ucwords($data['lotteryData']['seller']['username']) : 'N/A' }}
                     </td>
                 </tr>
                 <tr>
-                    <th width='70%'>Cliente:</th>
+                    <th>Cliente:</th>
                     <td>{{ ucwords($data['lotteryData']['client_name']) }}</td>
                 </tr>
                 <tr>
-                    <th width='70%'>Número de billete:</th>
+                    <th>Número de billete:</th>
                     <td>{{ ucwords($data['lotteryData']['order_id']) }}</td>
                 </tr>
             </table>
@@ -181,17 +227,19 @@
             <table class="table1">
                 <tr>
                     <th style="width:50%">Grand total</th>
-                    <th style="width:50%"> $:{{ number_format($grandTotalFrac, 2) }} |
-                        Q:{{ number_format($grandTotalQuat, 2) }}</th>
+                    <td style="width:50%"> $:{{ number_format($grandTotalFrac, 2) }} |
+                        Q:{{ number_format($grandTotalQuat, 2) }}</td>
                 </tr>
                 <tr>
                     <th style="width:50%">Estado de pago/ganancia</th>
-                    <th style="width:50%">{{ $winNotWin }} | {{ $paidNotPaid }}</th>
+                    <td style="width:50%">{{ $winNotWin }} | {{ $paidNotPaid }}</td>
                 </tr>
             </table>
 
             <div class="qr-code" align="center">
-                {!! $data['qrCode'] !!}
+                <div class="qr-wrapper">
+                    {!! $data['qrCode'] !!}
+                </div>
             </div>
         </div>
     </div>

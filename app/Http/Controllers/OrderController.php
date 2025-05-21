@@ -363,7 +363,7 @@ class OrderController extends Controller
 
         // Generate the QR code URL
         $url = route('printOrder', ['id' => $id]); // Replace 'printOrder' with the route name if it has a name
-        $qrCode = QrCode::size(450)->generate($url);
+        $qrCode = QrCode::format('svg')->generate($url);
 
         // Prepare response data
         $response = [

@@ -30,7 +30,7 @@ use App\Http\Controllers\WinnigController;
 
 
 Route::middleware('auth:sanctum')->group(function () {
-    
+
     Route::post('/addLoan', [UserController::class, 'addLoan']);
     Route::post('/dashboard', [DashboardController::class, 'dashboard']);
     //for view details
@@ -52,57 +52,56 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/edituser/{user_id}', [UserController::class, 'edituser']);
 
 
-    Route::get('/requestuserlist' , [UserController::class, 'requestUserList']);
+    Route::get('/requestuserlist', [UserController::class, 'requestUserList']);
     //user list based on role
-    Route::get('/userList' , [UserController::class, 'userList']);
+    Route::get('/userList', [UserController::class, 'userList']);
     //add Riddles
-    Route::post('/changePassword' , [UserController::class, 'changePassword']);
+    Route::post('/changePassword', [UserController::class, 'changePassword']);
     Route::post('/uploadProfileImage', [UserController::class, 'uploadProfileImage']);
-    Route::post('/addRiddles/{rid_id?}' , [RiddlesController::class, 'store']);
+    Route::post('/addRiddles/{rid_id?}', [RiddlesController::class, 'store']);
 
-    Route::get('/deleteriddle/{rid_id?}' , [RiddlesController::class, 'destroy']);
+    Route::get('/deleteriddle/{rid_id?}', [RiddlesController::class, 'destroy']);
 
 
     //Sale related controllers
     //limit routes
-    Route::post('/addLimit' , [SaleController::class, 'addLimit']);
-    Route::get('/limitlist/{user_id}' , [SaleController::class, 'limitlist']);
-    Route::delete('/deleteLimitsingle/{limit_id}' , [SaleController::class, 'deleteLimitsingle']);
-    Route::delete('/deleteLimitlottery' , [SaleController::class, 'deleteLimitlottery']);
+    Route::post('/addLimit', [SaleController::class, 'addLimit']);
+    Route::get('/limitlist/{user_id}', [SaleController::class, 'limitlist']);
+    Route::delete('/deleteLimitsingle/{limit_id}', [SaleController::class, 'deleteLimitsingle']);
+    Route::delete('/deleteLimitlottery', [SaleController::class, 'deleteLimitlottery']);
 
     //Limit routes end
-    Route::post('/checkLimit' , [SaleController::class, 'checkLimit']);
+    Route::post('/checkLimit', [SaleController::class, 'checkLimit']);
     //orders ticket
-    Route::post('/createOrder' , [OrderController::class, 'createOrder']);
-    Route::get('/orderList' , [OrderController::class, 'orderList']);
+    Route::post('/createOrder', [OrderController::class, 'createOrder']);
+    Route::get('/orderList', [OrderController::class, 'orderList']);
 
-    Route::get('/orderprint/{id}' , [OrderController::class, 'orderprint']);
-    
-    Route::get('/printOrder/{id}' , [OrderController::class, 'printOrder']);
-    
-    Route::get('/deleteorder/{id}' , [OrderController::class, 'deleteorder']);
-    
+    Route::get('/orderprint/{id}', [OrderController::class, 'orderprint']);
+
+    Route::get('/printOrder/{id}', [OrderController::class, 'printOrder']);
+
+    Route::get('/deleteorder/{id}', [OrderController::class, 'deleteorder']);
+
     Route::get('/getNotifications', [UserController::class, 'getNotifications']);
 
 
 
-    Route::post('/saleReport' , [SaleReportController::class, 'saleReport']);
+    Route::post('/saleReport', [SaleReportController::class, 'saleReport']);
 
 
     //winning number add
-    Route::post('/winadd' , [WinnigController::class , 'addWinningNumber']);
-    Route::get('/winningcustomer' , [WinnigController::class , 'winListAll']);
+    Route::post('/winadd', [WinnigController::class, 'addWinningNumber']);
+    Route::get('/winningcustomer', [WinnigController::class, 'winListAll']);
     //seller wining orders
-    Route::get('/add_winnigamountbyseller' , [DashboardController::class , 'addWinningamountbySeller']);
-    Route::get('/winnigorderslist' , [WinnigController::class , 'getWinningOrders']);
+    Route::get('/add_winnigamountbyseller', [DashboardController::class, 'addWinningamountbySeller']);
+    Route::get('/winnigorderslist', [WinnigController::class, 'getWinningOrders']);
     //winning amout paid by seller
 
     Route::get('/getUserCredit', [UserController::class, 'getUserCredit']);
-    
-    //Riddles list
-    Route::get('/riddleList' , [RiddlesController::class, 'index']);
-    Route::post('/deleteWinningNumber', [WinnigController::class, 'deleteWinningNumber']);
 
+    //Riddles list
+    Route::get('/riddleList', [RiddlesController::class, 'index']);
+    Route::post('/deleteWinningNumber', [WinnigController::class, 'deleteWinningNumber']);
 });
 
 Route::get('/printOrder/{id}', [OrderController::class, 'printOrder'])->name('printOrder');
@@ -112,14 +111,12 @@ Route::post('/forgotPassword', [UserController::class, 'forgotPassword']);
 
 Route::post('/login', [LoginController::class, 'login']);
 //Route::post('/admin', [DashboardController::class, 'admin']);
-Route::post('/requestAccess' , [UserController::class, 'requestUser']);
+Route::post('/requestAccess', [UserController::class, 'requestUser']);
 
 
 //winning mamagement
 
-Route::get('/winingList' , [RiddlesController::class, 'winingList']);
+Route::get('/winingList', [RiddlesController::class, 'winingList']);
 
 //test time 
 Route::get('/testTime', [OrderController::class, 'testTime']);
-
-
