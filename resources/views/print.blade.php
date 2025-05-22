@@ -227,7 +227,7 @@
             <table class="table1">
                 <tr>
                     <th style="width:50%">Grand total</th>
-                    <td style="width:50%"> $:{{ number_format($grandTotalFrac, 2) }} |
+                    <td style="width:50%"> P:{{ number_format($grandTotalFrac, 2) }} |
                         Q:{{ number_format($grandTotalQuat, 2) }}</td>
                 </tr>
                 <tr>
