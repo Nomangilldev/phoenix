@@ -100,8 +100,9 @@ class SaleReportController extends Controller
         $salesData['lotteryName'] = $lottery->lot_name;
         $salesData['date'] = now()->format('d-m-Y h:i A');
         $salesData['users'] = $users;
-        $salesData['fromdate'] = date('d/m/Y h:i A', strtotime($fromDate));
-        $salesData['todate'] = date('d/m/Y h:i A', strtotime($toDate));
+        $salesData['fromdate'] = $fromDateCarbon->format('d/m/Y h:i A');
+        $salesData['todate'] = $toDateCarbon->format('d/m/Y h:i A');
+
 
 
         $jsonResponse = [
