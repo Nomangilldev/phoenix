@@ -36,10 +36,10 @@
         <div class="row">
             <div class="col-12">
                 <div class="row">
-                    <div class="col-6">
+                    <div class="col-4">
                         <h2>Sale Report</h2>
                     </div>
-                    <div class="col-6">
+                    <div class="col-8">
                         <div class="text-center mb-4">
                             {{-- <h4 style="margin-bottom: 10px;">Sale Report</h4> --}}
                             <div style="font-size: 18px; font-weight: bold;">
