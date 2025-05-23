@@ -2,6 +2,7 @@
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <title>Sale Report</title>
     <meta charset="utf-8">
@@ -16,64 +17,78 @@
                 display: none;
             }
         }
-        
-        button{
+
+        button {
             padding: 15px;
             margin: 50px;
             color: white;
             background-color: darkblue;
             border: none;
-            cursor:pointer;
+            cursor: pointer;
             border-radius: 5px;
         }
     </style>
 </head>
+
 <body>
     <button class="" onclick="window.print()">Print</button>
     <div class="container">
         <div class="row">
             <div class="col-12">
-                <h2>Sale Report</h2>
                 <div class="row">
-    @php
-        $numberlist = $data['numberlist'];
-        unset($numberlist['00']); // Remove '00' from the number list
-        $chunks = array_chunk($numberlist, 33, true);
+                    <div class="col-6">
+                        <h2>Sale Report</h2>
+                    </div>
+                    <div class="col-6">
+                        <div class="text-center mb-4">
+                            {{-- <h4 style="margin-bottom: 10px;">Sale Report</h4> --}}
+                            <div style="font-size: 18px; font-weight: bold;">
+                                From: {{ $data['fromdate'] ?? 'N/A' }} &nbsp;&nbsp; | &nbsp;&nbsp; To:
+                                {{ $data['todate'] ?? 'N/A' }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    @php
+                        $numberlist = $data['numberlist'];
+                        unset($numberlist['00']); // Remove '00' from the number list
+                        $chunks = array_chunk($numberlist, 33, true);
 
-        // Find the chunk index where '66' is located
-        $chunkIndex = 0;
-        foreach ($chunks as $index => $chunk) {
-            if (array_key_exists('66', $chunk)) {
-                $chunkIndex = $index;
-                break;
-            }
-        }
+                        // Find the chunk index where '66' is located
+                        $chunkIndex = 0;
+                        foreach ($chunks as $index => $chunk) {
+                            if (array_key_exists('66', $chunk)) {
+                                $chunkIndex = $index;
+                                break;
+                            }
+                        }
 
-        // Add '00' row to the same chunk as '66'
-        $chunks[$chunkIndex]['00'] = $data['numberlist']['00'];
-    @endphp
+                        // Add '00' row to the same chunk as '66'
+                        $chunks[$chunkIndex]['00'] = $data['numberlist']['00'];
+                    @endphp
 
-    @foreach ($chunks as $chunk)
-        <div class="col-sm-4 col-md-4 col-xs-4" style="width:30%;float:left; font-size:30px">
-            <table border="1" class="table table-reponsive table-bordered table-hover">
-                @foreach ($chunk as $number => $amount)
-                    <tr>
-                        <th>{{ $number }}</th>
-                        <td>{{ $amount }}</td>
-                    </tr>
-                @endforeach
-            </table>
-        </div>
-    @endforeach
-</div>
+                    @foreach ($chunks as $chunk)
+                        <div class="col-sm-4 col-md-4 col-xs-4" style="width:30%;float:left; font-size:30px">
+                            <table border="1" class="table table-reponsive table-bordered table-hover">
+                                @foreach ($chunk as $number => $amount)
+                                    <tr>
+                                        <th>{{ $number }}</th>
+                                        <td>{{ $amount }}</td>
+                                    </tr>
+                                @endforeach
+                            </table>
+                        </div>
+                    @endforeach
+                </div>
 
             </div>
             <div class="col-12" style="font-size: 30px;">
                 <table class="table table-bordered table-hover">
                     <tr>
                         @php
-                        $totalSoldInFraction = $data['totalSold'] * 20;
-                        $winningTotalSoldInFraction = $data['winningNumbersTotal'] * 20;
+                            $totalSoldInFraction = $data['totalSold'] * 20;
+                            $winningTotalSoldInFraction = $data['winningNumbersTotal'] * 20;
                         @endphp
                         <th>Total Sold</th>
                         <td>{{ $data['totalSold'] }}</td>
@@ -94,7 +109,7 @@
                         <th>Winning Numbers Total(Fraction)</th>
                         <td>{{ $winningTotalSoldInFraction }}</td>
                         <th>Lottery Name</th>
-                        <td>{{ $data['lotteryName'] }}</td>
+                        <td>{{ ucwords($data['lotteryName']) }}</td>
                     </tr>
                     <tr>
                         <th>Date</th>
@@ -104,8 +119,8 @@
                 <table class="table table-bordered table-hover">
                     <tr>
                         <th>
-                            @foreach($data['users'] as $user)
-                            {{$user->username}} ({{$user->user_role}}),
+                            @foreach ($data['users'] as $user)
+                                {{ $user->username }} ({{ $user->user_role }}),
                             @endforeach
                         </th>
                     </tr>
@@ -119,4 +134,5 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 </body>
+
 </html>
